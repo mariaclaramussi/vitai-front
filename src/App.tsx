@@ -5,11 +5,15 @@ import { Sidebar } from "./components";
 import Header from "./components/header/header";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import Home from "./pages/Home";
-import About from "./pages/About";
 import { theme } from "./theme";
+import NewCategoriaExame from "./pages/NewCategoriaExame";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+
+const queryClient = new QueryClient();
 
 function App() {
   return (
+    <QueryClientProvider client={queryClient}>
     <ThemeProvider theme={theme}>
       <Header />
 
@@ -21,20 +25,22 @@ function App() {
           <Box
             sx={{
               flexGrow: 1,
-              height: `calc(100vh - 80px)`,
+              minHeight: "100vh",
               width: `calc(100% - 214px)`,
               background: theme.palette.background.default,
-              padding: "100px 24px 0",
+              padding: "0 24px"
             }}
           >
             <Routes>
               <Route path="/pedidos" element={<Home />} />
-              <Route path="/resultados" element={<About />} />
+              <Route path="/resultados" element={<Home />} />
+              <Route path="/categoria-de-exame/cadastro" element={<NewCategoriaExame />} />
             </Routes>
           </Box>
         </BrowserRouter>
       </Box>
     </ThemeProvider>
+    </QueryClientProvider>
   );
 }
 
