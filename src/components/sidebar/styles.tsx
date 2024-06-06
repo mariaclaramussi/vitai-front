@@ -14,8 +14,9 @@ export const StyledDrawer = styled(Drawer)<DrawerProps>(({ theme }) => {
       backgroundColor: "#fff",
       width: "100%",
       maxWidth: "214px",
-      padding: "96px 0 0",
       border: "none",
+      position: "relative",
+      height: "100vh",
     },
   };
 });
@@ -24,7 +25,7 @@ export const StyledList = styled("ul")(() => {
     return {
         listStyle: "none",
         padding:  "0 12px",
-        margin: 0,
+        marginTop: "96px"
     };
 });
 

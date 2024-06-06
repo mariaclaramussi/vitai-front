@@ -1,5 +1,5 @@
-import { Box, Collapse, List, ListItemIcon } from "@mui/material";
-import React from "react";
+import { Box, Button, Collapse, List, ListItemIcon } from "@mui/material";
+import React, { FC, useState } from "react";
 import {
   ExpandLess,
   ExpandMore,
@@ -20,9 +20,11 @@ interface SidebarProps {
   // adicione as propriedades necessárias aqui
 }
 
-const Sidebar: React.FC<SidebarProps> = () => {
-  const [openExam, setOpenExam] = React.useState(true);
-  const [openLab, setOpenLab] = React.useState(false);
+const Sidebar: FC<SidebarProps> = () => {
+  const [openExam, setOpenExam] = useState(true);
+  const [openLab, setOpenLab] = useState(false);
+
+  const [showRegister, setToggleRegister] = useState(false);
 
   let navigate = useNavigate();
 
@@ -36,10 +38,6 @@ const Sidebar: React.FC<SidebarProps> = () => {
         {
           text: "Pedidos",
           onClick: () => navigate("/pedidos"),
-        },
-        {
-          text: "Cadastrar categoria",
-          onClick: () => navigate("/categoria-de-exame/cadastro"),
         },
       ],
     },
@@ -57,6 +55,13 @@ const Sidebar: React.FC<SidebarProps> = () => {
     },
   ];
 
+  const registerItemsList = [
+    {
+      text: "Categoria de exame",
+      onClick: () => navigate("/categoria-de-exame/cadastro"),
+    },
+  ];
+
   const drawer = (
     <StyledList>
       {itemsList.map((item, index) => {
@@ -69,7 +74,7 @@ const Sidebar: React.FC<SidebarProps> = () => {
               )}
 
               <StyledListItemText primary={text} />
-              {openExam ? <ExpandLess /> : <ExpandMore />}
+              {boolean ? <ExpandLess /> : <ExpandMore />}
             </StyledListItemMainButton>
             <Collapse in={boolean} timeout="auto" unmountOnExit>
               <List component="div" disablePadding>
@@ -92,9 +97,37 @@ const Sidebar: React.FC<SidebarProps> = () => {
     </StyledList>
   );
 
+  const registerDrawer = (
+    <StyledList>
+      {registerItemsList.map((item, index) => {
+        const { text, onClick } = item;
+        return (
+          <Box mb={2} key={index}>
+            <StyledListItemMainButton onClick={onClick}>
+              <StyledListItemText primary={text} />
+            </StyledListItemMainButton>
+          </Box>
+        );
+      })}
+    </StyledList>
+  );
+
   return (
     <StyledDrawer variant="permanent" open>
-      {drawer}
+      <Box sx={{ height: "90%", overflow: "auto" }}>
+        {showRegister ? registerDrawer : drawer}
+      </Box>
+
+      <Box display="flex" justifyContent="center" padding="0 12px">
+        <Button
+          variant="contained"
+          onClick={() => setToggleRegister(!showRegister)}
+          fullWidth
+          size="small"
+        >
+          {showRegister ? "Voltar" : "Cadastrar"}
+        </Button>
+      </Box>
     </StyledDrawer>
   );
 };

@@ -1,8 +1,8 @@
 import { PersonOutlined } from "@mui/icons-material";
-import { Box, IconButton } from "@mui/material";
+import { Box } from "@mui/material";
 import React from "react";
 import { ReactComponent as Logo } from "../../images/vitai_logo.svg";
-import { StyledAppBar } from "./styles";
+import { IconContainer, StyledAppBar } from "./styles";
 
 const Header: React.FC = () => {
   return (
@@ -18,9 +18,9 @@ const Header: React.FC = () => {
           justifyContent: "flex-end",
         }}
       >
-        <IconButton sx={{ p: 0 }}>
-          <PersonOutlined />
-        </IconButton>
+        <IconContainer>
+          <PersonOutlined fontSize="small" />
+        </IconContainer>
       </Box>
     </StyledAppBar>
   );

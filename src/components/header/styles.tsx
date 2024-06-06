@@ -1,4 +1,4 @@
-import { AppBar, AppBarProps, styled } from "@mui/material";
+import { AppBar, AppBarProps, IconButton, IconButtonProps, styled } from "@mui/material";
 
 export const StyledAppBar = styled(AppBar)<AppBarProps>(({ theme }) => {
   return {
@@ -13,5 +13,16 @@ export const StyledAppBar = styled(AppBar)<AppBarProps>(({ theme }) => {
       flex: 1,
       padding: "16px 24px",
     },
+  };
+});
+
+export const IconContainer = styled(IconButton)<IconButtonProps>(({ theme }) => {
+  return {
+    display: "flex",
+    alignItems: "center",
+    width: '38px',
+    height: '38px',
+    borderRadius: '50%',
+    backgroundColor: theme.palette.background.paper,  
   };
 });
