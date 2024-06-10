@@ -8,6 +8,19 @@ export const theme = createTheme({
       fontWeight: 700,
       lineHeight: 1,
     },
+    h2: { 
+      fontSize: "24px",
+      fontWeight: 700,
+      lineHeight: 1,
+    },
+    subtitle1: {
+      fontSize: "16px",
+      fontWeight: '600'
+    },
+    subtitle2: {
+      fontSize: "14px",
+      fontWeight: '600'
+    }
   },
   palette: {
     primary: { main: "#3AAA99" },
@@ -30,13 +43,19 @@ export const theme = createTheme({
       styleOverrides: {
         root: {
           borderRadius: "8px",
-          padding: '10px 32px',
           fontSize: "16px",
           lineHeight: '24px',
           fontWeight: '700',
-          color: "#EFEEEE",
-          textTransform: 'inherit'
+          textTransform: 'inherit',
+          padding: '8px 28px',
         },
+        sizeSmall: {
+          fontSize: "14px",
+          padding: "6px 16px"
+        },
+        contained: {
+          color: "#efeeee",
+        }
       },
     },
     MuiFormControl: {
@@ -74,9 +93,9 @@ export const theme = createTheme({
       styleOverrides: {
         root: {
           marginBottom: "8px",
-          lineHeight: 1
         },
       },
-    }
+    },
+
   }
 });

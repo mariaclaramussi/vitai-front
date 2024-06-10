@@ -60,6 +60,10 @@ const Sidebar: FC<SidebarProps> = () => {
       text: "Categoria de exame",
       onClick: () => navigate("/categoria-de-exame/cadastro"),
     },
+    {
+      text: "Exame",
+      onClick: () => navigate("/exame/cadastro"),
+    },
   ];
 
   const drawer = (
@@ -123,7 +127,6 @@ const Sidebar: FC<SidebarProps> = () => {
           variant="contained"
           onClick={() => setToggleRegister(!showRegister)}
           fullWidth
-          size="small"
         >
           {showRegister ? "Voltar" : "Cadastrar"}
         </Button>

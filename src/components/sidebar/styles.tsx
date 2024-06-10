@@ -15,7 +15,7 @@ export const StyledDrawer = styled(Drawer)<DrawerProps>(({ theme }) => {
       width: "100%",
       maxWidth: "214px",
       border: "none",
-      position: "relative",
+      position: "fixed",
       height: "100vh",
     },
   };

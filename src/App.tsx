@@ -8,6 +8,7 @@ import Home from "./pages/Home";
 import { theme } from "./theme";
 import NewCategoriaExame from "./pages/NewCategoriaExame";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { NewExameTipo } from "./pages/NewExameTipo";
 
 const queryClient = new QueryClient();
 
@@ -28,13 +29,14 @@ function App() {
               minHeight: "100vh",
               width: `calc(100% - 214px)`,
               background: theme.palette.background.default,
-              padding: "0 24px"
+              padding: "0 24px 40px",
             }}
           >
             <Routes>
               <Route path="/pedidos" element={<Home />} />
               <Route path="/resultados" element={<Home />} />
               <Route path="/categoria-de-exame/cadastro" element={<NewCategoriaExame />} />
+              <Route path="/exame/cadastro" element={<NewExameTipo />} />
             </Routes>
           </Box>
         </BrowserRouter>
