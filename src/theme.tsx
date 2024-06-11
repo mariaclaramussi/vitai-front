@@ -96,6 +96,19 @@ export const theme = createTheme({
         },
       },
     },
-
+    MuiTable: {
+      styleOverrides: {
+        root: {
+          borderCollapse: 'inherit'
+        },
+      },
+    },
+    MuiTableCell: {
+      styleOverrides: {
+        root: {
+          padding: "12px 16px"
+        },
+      },
+    },
   }
 });

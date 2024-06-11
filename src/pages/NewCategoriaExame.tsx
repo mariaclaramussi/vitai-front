@@ -66,8 +66,6 @@ export function NewCategoriaExame() {
   });
 
   const onSubmit = (data: FormInputProps) => {
-    console.log(data)
-
     fetch("/categorias-de-exame", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
