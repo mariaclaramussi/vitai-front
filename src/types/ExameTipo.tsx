@@ -1,3 +1,5 @@
+import { SubExameTipo } from "./SubExameTipo";
+
 export type Material = {
   id: number;
   nome: string;
@@ -10,6 +12,7 @@ export type Metodo = {
 };
 
 export type ExameTipo = {
+  id: number,
   nome: string;
   descricao: string;
   prazoExecucao: number;
@@ -21,4 +24,5 @@ export type ExameTipo = {
   dataExclusao: Date;
   codTipoMaterial: number;
   codTipoMetodo: number;
+  subExamesTipoList: SubExameTipo[];
 };

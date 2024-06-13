@@ -1,5 +1,7 @@
 import { createTheme } from "@mui/material";
 
+const darkText = "#3D3D3D"
+
 export const theme = createTheme({
   typography: {
     fontFamily: ["Poppins", "sans-serif"].join(","),
@@ -13,22 +15,31 @@ export const theme = createTheme({
       fontWeight: 700,
       lineHeight: 1,
     },
+    h3: {
+      fontSize: "24px",
+      lineHeight: 1,
+    },
     subtitle1: {
       fontSize: "16px",
-      fontWeight: '600'
+      fontWeight: '600',
     },
     subtitle2: {
       fontSize: "14px",
-      fontWeight: '600'
+      fontWeight: '600',
+    },
+    allVariants: {
+      color: darkText,
+      fontFamily: ["Poppins", "sans-serif"].join(","),
     }
   },
   palette: {
     primary: { main: "#3AAA99" },
     secondary: { main: "#EFEEEE" },
-    error: { main: "rgb(191, 35, 35, 0.3)" },
-    warning: { main: "rgb(223, 216, 65, 0.3)" },
-    success: { main: "rgb(158, 213, 216, 0.3)" },
+    error: { main: "rgb(191, 35, 35, 1)" },
+    warning: { main: "rgb(223, 216, 65, 1)" },
+    success: { main: "rgb(158, 213, 216, 1)" },
     background: { default: "#F5F5F5", paper: "#fff" },
+    text: { primary: darkText },
   },
   components: {
     MuiCard: {

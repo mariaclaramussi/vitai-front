@@ -8,7 +8,7 @@ import Home from "./pages/Home";
 import { theme } from "./theme";
 import NewCategoriaExame from "./pages/NewCategoriaExame";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { NewExameTipo } from "./pages/NewExameTipo";
+import { NewExameTipo } from "./pages/ExameTipo/NewExameTipo";
 
 const queryClient = new QueryClient();
 

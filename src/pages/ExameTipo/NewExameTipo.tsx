@@ -8,32 +8,24 @@ import {
   Button,
   MenuItem,
   IconButton,
-  Table,
-  TableHead,
-  TableRow,
-  TableCell,
-  TableBody,
-  styled,
+  Alert,
+  Snackbar,
+  Autocomplete,
+  TextField,
 } from "@mui/material";
 import { useForm } from "react-hook-form";
-import { InputText } from "../components/form/InputText";
-import { ExameTipo, Material, Metodo } from "../types/ExameTipo";
-import { useQuery } from "@tanstack/react-query";
-import { InputSelect } from "../components/form/InputSelect";
-import { InputSelectRadio } from "../components/form/InputSelectRadio";
+import { InputText } from "../../components/form/InputText";
+import { ExameTipo, Material, Metodo } from "../../types/ExameTipo";
+import { InputSelect } from "../../components/form/InputSelect";
+import { InputSelectRadio } from "../../components/form/InputSelectRadio";
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
-import ModeEditIcon from "@mui/icons-material/ModeEdit";
-import { CategoriaExame } from "../types/CategoriaExame";
-import { FormDialog } from "../components/form/FormDialog";
-
-const StyledTableGroupHead = styled(TableRow)(({ theme }) => ({
-  backgroundColor: theme.palette.primary.main,
-  color: theme.palette.secondary.main,
-}));
-
-const StyledTableItemHead = styled(TableRow)(({ theme }) => ({
-  backgroundColor: theme.palette.secondary.main,
-}));
+import { CategoriaExame } from "../../types/CategoriaExame";
+import { FormDialog } from "../../components/form/FormDialog";
+import { NewSubExameTipoTable } from "./components/SubExameTipoTable";
+import { useMetodos } from "../../hooks/useMetodos";
+import { useMateriais } from "../../hooks/useMateriais";
+import { useCategorias } from "../../hooks/useCategorias";
+import { useExamesTipo } from "../../hooks/useExamesTipo";
 
 const defaultValues = {
   nome: "",
@@ -48,66 +40,66 @@ const defaultValues = {
   codTipoMetodo: 0,
 };
 
+// const useSubExameByExameTipo = (id?: number) => {
+//   return useQuery<SubExameTipo[]>({
+//     queryKey: ["subExames"],
+//     queryFn: async () => {
+//       const response = await fetch(`/exames/${id}/sub-exames`).then(
+//         (response) => response.json()
+//       );
+
+//       if (response.error) {
+//         throw new Error(response.error);
+//       }
+
+//       return response;
+//     },
+//     enabled: !!id && id > 0,
+//   });
+// };
+
 export function NewExameTipo() {
   const [dialogMaterialOpen, setDialogMaterialOpen] = useState<boolean>(false);
   const [dialogMetodoOpen, setDialogMetodoOpen] = useState<boolean>(false);
+  const [alertMessage, setAlertMessage] = useState<{
+    show: boolean;
+    message: string;
+  }>({ show: false, message: "" });
+
+  const [searchedExame, setSearchedExame] = useState<ExameTipo>();
+
+  const [exameTipoId, setExameTipoId] = useState<number | undefined>(undefined);
 
   const { control, handleSubmit, setValue } = useForm<ExameTipo>({
     defaultValues: defaultValues,
   });
+
+  const { data: materiaisData } = useMateriais();
+
+  const { data: metodosData } = useMetodos()
+
+  const { data: categoriasData } = useCategorias();
+
+  const { data: examesData } = useExamesTipo();
+
 
   const onSubmit = (data: ExameTipo) => {
     fetch("/exames", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(data),
-    });
+    })
+      .then((response) => response.json())
+      .then((data: any) => {
+        setExameTipoId(data?.id);
+      })
+      .then(() => {
+        setAlertMessage({
+          show: true,
+          message: "Exame cadastrado com sucesso!",
+        });
+      });
   };
-
-  const { data: materiaisData } = useQuery<Material[]>({
-    queryKey: ["materiais"],
-    queryFn: async () => {
-      const response = await fetch("/materiais").then((response) =>
-        response.json()
-      );
-
-      if (response.error) {
-        throw new Error(response.error);
-      }
-
-      return response;
-    },
-  });
-
-  const { data: metodosData } = useQuery<Metodo[]>({
-    queryKey: ["metodos"],
-    queryFn: async () => {
-      const response = await fetch("/metodos").then((response) =>
-        response.json()
-      );
-
-      if (response.error) {
-        throw new Error(response.error);
-      }
-
-      return response;
-    },
-  });
-
-  const { data: categoriasData } = useQuery<CategoriaExame[]>({
-    queryKey: ["categorias"],
-    queryFn: async () => {
-      const response = await fetch("/categorias-de-exame").then((response) =>
-        response.json()
-      );
-
-      if (response.error) {
-        throw new Error(response.error);
-      }
-
-      return response;
-    },
-  });
 
   const handleMaterialDialog = (state: boolean) => {
     setDialogMaterialOpen(state);
@@ -129,10 +121,54 @@ export function NewExameTipo() {
     }
   });
 
+  useEffect(() => {
+    fetch(`/exames/${exameTipoId}`)
+      .then((response) => response.json())
+      .then((data: { exameTipo: ExameTipo }) => {
+        setSearchedExame(data.exameTipo);
+      });
+  }, [exameTipoId]);
+
   return (
     <>
+      {alertMessage ? (
+        <Snackbar
+          open={alertMessage.show}
+          autoHideDuration={6000}
+          onClose={() => setAlertMessage({ show: false, message: "" })}
+        >
+          <Alert
+            onClose={() => setAlertMessage({ show: false, message: "" })}
+            severity="success"
+            variant="filled"
+          >
+            {alertMessage.message}
+          </Alert>
+        </Snackbar>
+      ) : null}
+
       <Box mt={12} mb={4}>
-        <Typography variant="h1">Cadastro de exame</Typography>
+        <Grid container>
+          <Grid flex={1}>
+            <Typography variant="h1">Cadastro de exame</Typography>
+          </Grid>
+          <Grid sx={{ width: 300 }}>
+            <Autocomplete
+              freeSolo
+              options={examesData || []}
+              getOptionLabel={(option) =>
+                typeof option === "string" ? option : option.nome
+              }
+              onChange={(_, value) => {
+                value &&
+                  setExameTipoId((value as { id: number; nome: string }).id);
+              }}
+              renderInput={(params) => {
+                return <TextField {...params} label="Pesquisa" />;
+              }}
+            />
+          </Grid>
+        </Grid>
       </Box>
       <Card>
         <form onSubmit={handleSubmit(onSubmit)}>
@@ -303,81 +339,11 @@ export function NewExameTipo() {
       >
         <Typography variant="h2">Itens do exame</Typography>
         <Button variant="outlined" size="small">
-          Novo Grupo
+          Novo Grupo {/* = POST new sub exame tipo */}
         </Button>
       </Grid>
 
-      <Card>
-        <Table>
-          <TableHead>
-            <StyledTableGroupHead>
-              <TableCell
-                colSpan={4}
-                sx={{ borderTopLeftRadius: "8px", overflow: "hidden" }}
-              >
-                <Typography variant="subtitle1" color="secondary">
-                  Nome do grupo
-                </Typography>
-              </TableCell>
-              <TableCell
-                colSpan={1}
-                sx={{ borderTopRightRadius: "8px", overflow: "hidden" }}
-              >
-                <Grid container justifyContent="flex-end" pr={3}>
-                  <IconButton>
-                    <AddCircleOutlineIcon color="secondary" fontSize="small" />
-                  </IconButton>
-                  <IconButton>
-                    <ModeEditIcon color="secondary" fontSize="small" />
-                  </IconButton>
-                </Grid>
-              </TableCell>
-            </StyledTableGroupHead>
-            <StyledTableItemHead>
-              <TableCell>
-                <Typography variant="subtitle2">Item</Typography>
-              </TableCell>
-              <TableCell>
-                <Typography variant="subtitle2">Unidade</Typography>
-              </TableCell>
-              <TableCell>
-                <Typography variant="subtitle2">Mnemônico</Typography>
-              </TableCell>
-              <TableCell colSpan={2}>
-                <Typography variant="subtitle2">Valor de referência</Typography>
-              </TableCell>
-            </StyledTableItemHead>
-          </TableHead>
-          <TableBody>
-            <TableRow>
-              <TableCell>Item 1</TableCell>
-              <TableCell>mg/dL</TableCell>
-              <TableCell>Item1</TableCell>
-              <TableCell>0 - 100</TableCell>
-              <TableCell
-                sx={{ display: "flex", justifyContent: "flex-end", mr: 3 }}
-              >
-                <IconButton>
-                  <ModeEditIcon />
-                </IconButton>
-              </TableCell>
-            </TableRow>
-            <TableRow>
-              <TableCell>Item 2</TableCell>
-              <TableCell>mg/g de creatinina</TableCell>
-              <TableCell>UR5</TableCell>
-              <TableCell>IBPM ate 5,0 mg/g de creatinina</TableCell>
-              <TableCell
-                sx={{ display: "flex", justifyContent: "flex-end", mr: 3 }}
-              >
-                <IconButton>
-                  <ModeEditIcon />
-                </IconButton>
-              </TableCell>
-            </TableRow>
-          </TableBody>
-        </Table>
-      </Card>
+      <NewSubExameTipoTable subExameData={searchedExame?.subExamesTipoList} />
     </>
   );
 }
