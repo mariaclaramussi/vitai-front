@@ -42,24 +42,6 @@ const defaultValues = {
   codTipoMetodo: 0,
 } as ExameTipo;
 
-// const useSubExameByExameTipo = (id?: number) => {
-//   return useQuery<SubExameTipo[]>({
-//     queryKey: ["subExames"],
-//     queryFn: async () => {
-//       const response = await fetch(`/exames/${id}/sub-exames`).then(
-//         (response) => response.json()
-//       );
-
-//       if (response.error) {
-//         throw new Error(response.error);
-//       }
-
-//       return response;
-//     },
-//     enabled: !!id && id > 0,
-//   });
-// };
-
 export function NewExameTipo() {
   const [dialogMaterialOpen, setDialogMaterialOpen] = useState<boolean>(false);
   const [dialogMetodoOpen, setDialogMetodoOpen] = useState<boolean>(false);
@@ -102,7 +84,8 @@ export function NewExameTipo() {
 
   const { data: examesData } = useExamesTipo();
 
-  const { data: singleExameData } = useSingleExameTipo(exameTipoId);
+  const { data: singleExameData, refetch: refetchSingleExameTipo } =
+    useSingleExameTipo(exameTipoId);
 
   const onSubmit: SubmitHandler<ExameTipo> = (data, event) => {
     event?.preventDefault();
@@ -221,7 +204,6 @@ export function NewExameTipo() {
     }
   }, [singleExameData]);
 
-  console.log(singleExameData);
   return (
     <>
       {alertMessage ? (
@@ -490,7 +472,11 @@ export function NewExameTipo() {
         />
       </FormDialog>
 
-      <NewSubExameTipoTable subExameData={searchedExame?.subExamesTipoList} />
+      <NewSubExameTipoTable
+        exameTipoId={exameTipoId}
+        subExameData={searchedExame?.subExamesTipoList}
+        uploadTableData={refetchSingleExameTipo}
+      />
     </>
   );
 }
