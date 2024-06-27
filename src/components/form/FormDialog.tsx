@@ -1,4 +1,4 @@
-import React, { ReactNode } from "react"
+import React, { ReactNode } from "react";
 import {
   Dialog,
   DialogTitle,
@@ -9,24 +9,32 @@ import {
 import { theme } from "../../theme";
 
 type FormDialogProps = {
-    onClose: () => void;
-    open: boolean
-    title: string
-    children: ReactNode
-    onSubmit: () => void
-}
+  onClose: () => void;
+  open: boolean;
+  title: string;
+  maxWidth?: "xs" | "sm" | "md" | "lg" | "xl" | false;
+  children: ReactNode;
+  onSubmit?: () => void;
+};
 
-export const FormDialog = ({open, title, children, onClose, onSubmit}: FormDialogProps) => {
+export const FormDialog = ({
+  open,
+  title,
+  children,
+  maxWidth = "xs",
+  onClose,
+  onSubmit,
+}: FormDialogProps) => {
   return (
     <Dialog
       open={open}
       onClose={onClose}
-      maxWidth="xs"
+      maxWidth={maxWidth}
       fullWidth
       PaperProps={{
         sx: { borderRadius: "8px", paddingBottom: 2 },
         component: "form",
-        onSubmit: onSubmit
+        onSubmit: onSubmit,
       }}
     >
       <DialogTitle
@@ -37,16 +45,15 @@ export const FormDialog = ({open, title, children, onClose, onSubmit}: FormDialo
           padding: 2,
         }}
       >
-       {title}
+        {title}
       </DialogTitle>
-      <DialogContent sx={{ padding: 2 }}>
-        {children}
-      </DialogContent>
+      <DialogContent sx={{ padding: 2 }}>{children}</DialogContent>
       <DialogActions sx={{ padding: 2 }}>
         <Button
           variant="text"
           color="error"
           onClick={onClose}
+          sx={{ opacity: 0.7 }}
         >
           Cancelar
         </Button>

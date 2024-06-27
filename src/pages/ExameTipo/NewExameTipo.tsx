@@ -12,8 +12,9 @@ import {
   Snackbar,
   Autocomplete,
   TextField,
+  Tooltip,
 } from "@mui/material";
-import { useForm } from "react-hook-form";
+import { SubmitHandler, useForm } from "react-hook-form";
 import { InputText } from "../../components/form/InputText";
 import { ExameTipo, Material, Metodo } from "../../types/ExameTipo";
 import { InputSelect } from "../../components/form/InputSelect";
@@ -26,10 +27,11 @@ import { useMetodos } from "../../hooks/useMetodos";
 import { useMateriais } from "../../hooks/useMateriais";
 import { useCategorias } from "../../hooks/useCategorias";
 import { useExamesTipo } from "../../hooks/useExamesTipo";
+import { useSingleExameTipo } from "../../hooks/useSingleExameTipo";
+import { SubExameTipo } from "../../types/SubExameTipo";
 
 const defaultValues = {
   nome: "",
-  descricao: "",
   prazoExecucao: 0,
   codCategoria: 0,
   mnemonico: "",
@@ -38,7 +40,7 @@ const defaultValues = {
   necessitaPreparo: false,
   codTipoMaterial: 0,
   codTipoMetodo: 0,
-};
+} as ExameTipo;
 
 // const useSubExameByExameTipo = (id?: number) => {
 //   return useQuery<SubExameTipo[]>({
@@ -61,6 +63,8 @@ const defaultValues = {
 export function NewExameTipo() {
   const [dialogMaterialOpen, setDialogMaterialOpen] = useState<boolean>(false);
   const [dialogMetodoOpen, setDialogMetodoOpen] = useState<boolean>(false);
+  const [dialogSubExameOpen, setDialogSubExameOpen] = useState<boolean>(false);
+
   const [alertMessage, setAlertMessage] = useState<{
     show: boolean;
     message: string;
@@ -70,20 +74,38 @@ export function NewExameTipo() {
 
   const [exameTipoId, setExameTipoId] = useState<number | undefined>(undefined);
 
-  const { control, handleSubmit, setValue } = useForm<ExameTipo>({
-    defaultValues: defaultValues,
-  });
+  const { control, handleSubmit, setValue, register, reset } =
+    useForm<ExameTipo>({
+      defaultValues: defaultValues,
+    });
 
-  const { data: materiaisData } = useMateriais();
+  const { control: materialFormControl, handleSubmit: handleSubmitMaterial } =
+    useForm<Material>({
+      defaultValues: { nome: "", qtdMaxima: 0 },
+    });
 
-  const { data: metodosData } = useMetodos()
+  const { control: metodoFormControl, handleSubmit: handleSubmitMetodo } =
+    useForm<Metodo>({
+      defaultValues: { nome: "" },
+    });
+
+  const { control: subExameFormControl, handleSubmit: handleSubmitSubExame } =
+    useForm<SubExameTipo>({
+      defaultValues: { nome: "", exameTipoItemsList: [] },
+    });
+
+  const { data: materiaisData, refetch: refetchMaterial } = useMateriais();
+
+  const { data: metodosData, refetch: refetchMetodo } = useMetodos();
 
   const { data: categoriasData } = useCategorias();
 
   const { data: examesData } = useExamesTipo();
 
+  const { data: singleExameData } = useSingleExameTipo(exameTipoId);
 
-  const onSubmit = (data: ExameTipo) => {
+  const onSubmit: SubmitHandler<ExameTipo> = (data, event) => {
+    event?.preventDefault();
     fetch("/exames", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -98,6 +120,77 @@ export function NewExameTipo() {
           show: true,
           message: "Exame cadastrado com sucesso!",
         });
+      });
+  };
+
+  const onSubmitMaterial: SubmitHandler<Material> = (
+    data: Material,
+    e?: React.BaseSyntheticEvent
+  ) => {
+    e?.preventDefault();
+
+    fetch("/materiais", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    })
+      .then((response) => response.json())
+      .then(() => {
+        setAlertMessage({
+          show: true,
+          message: "Novo material adicionado!",
+        });
+      })
+      .then(() => {
+        setDialogMaterialOpen(false);
+        refetchMaterial();
+      });
+  };
+
+  const onSubmitMetodo: SubmitHandler<Metodo> = (
+    data: Metodo,
+    e?: React.BaseSyntheticEvent
+  ) => {
+    e?.preventDefault();
+
+    fetch("/metodos", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    })
+      .then((response) => response.json())
+      .then(() => {
+        setAlertMessage({
+          show: true,
+          message: "Novo método adicionado!",
+        });
+      })
+      .then(() => {
+        setDialogMetodoOpen(false);
+        refetchMetodo();
+      });
+  };
+
+  const onSubmitSubExame: SubmitHandler<SubExameTipo> = (
+    data: SubExameTipo,
+    e?: React.BaseSyntheticEvent
+  ) => {
+    e?.preventDefault();
+
+    fetch("/sub-exames", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ ...data, codExameTipo: exameTipoId }),
+    })
+      .then((response) => response.json())
+      .then(() => {
+        setAlertMessage({
+          show: true,
+          message: "Novo grupo criado!",
+        });
+      })
+      .then(() => {
+        setDialogSubExameOpen(false);
       });
   };
 
@@ -122,13 +215,13 @@ export function NewExameTipo() {
   });
 
   useEffect(() => {
-    fetch(`/exames/${exameTipoId}`)
-      .then((response) => response.json())
-      .then((data: { exameTipo: ExameTipo }) => {
-        setSearchedExame(data.exameTipo);
-      });
-  }, [exameTipoId]);
+    if (singleExameData) {
+      setSearchedExame(singleExameData);
+      reset(singleExameData);
+    }
+  }, [singleExameData]);
 
+  console.log(singleExameData);
   return (
     <>
       {alertMessage ? (
@@ -147,8 +240,8 @@ export function NewExameTipo() {
         </Snackbar>
       ) : null}
 
-      <Box mt={12} mb={4}>
-        <Grid container>
+      <Box mt={12} mb={3}>
+        <Grid container alignItems="center">
           <Grid flex={1}>
             <Typography variant="h1">Cadastro de exame</Typography>
           </Grid>
@@ -164,7 +257,7 @@ export function NewExameTipo() {
                   setExameTipoId((value as { id: number; nome: string }).id);
               }}
               renderInput={(params) => {
-                return <TextField {...params} label="Pesquisa" />;
+                return <TextField {...params} placeholder="Pesquisar" />;
               }}
             />
           </Grid>
@@ -175,20 +268,16 @@ export function NewExameTipo() {
           <Grid container spacing={2}>
             <Grid item xs={12}>
               <InputLabel>Nome</InputLabel>
-              <InputText name="nome" placeholder="Nome" control={control} />
-            </Grid>
-
-            <Grid item xs={8}>
-              <InputLabel>Descrição</InputLabel>
               <InputText
-                placeholder="Descrição"
-                name="descricao"
+                {...register("nome")}
+                placeholder="Nome"
                 control={control}
               />
             </Grid>
-            <Grid item xs={4}>
+
+            <Grid item xs={3}>
               <InputLabel>Categoria</InputLabel>
-              <InputSelect name="codCategoria" control={control}>
+              <InputSelect {...register("codCategoria")} control={control}>
                 {categoriasData?.map((categoria: CategoriaExame) => (
                   <MenuItem key={categoria.id} value={categoria.id}>
                     {categoria.nome}
@@ -197,27 +286,27 @@ export function NewExameTipo() {
               </InputSelect>
             </Grid>
 
-            <Grid item xs={4}>
+            <Grid item xs={3}>
               <InputLabel>Mnemônico</InputLabel>
               <InputText
+                {...register("mnemonico")}
                 placeholder="Mnemônico"
-                name="mnemonico"
                 control={control}
               />
             </Grid>
-            <Grid item xs={4}>
+            <Grid item xs={3}>
               <InputLabel>Prazo de execução (min)</InputLabel>
               <InputText
+                {...register("prazoExecucao")}
                 placeholder="Prazo de execução"
-                name="prazoExecucao"
                 control={control}
               />
             </Grid>
-            <Grid item xs={4}>
+            <Grid item xs={3}>
               <InputLabel>Intervalo de pedidos (min)</InputLabel>
               <InputText
+                {...register("intervaloPedidos")}
                 placeholder="Intervalo de pedidos"
-                name="intervaloPedidos"
                 control={control}
               />
             </Grid>
@@ -225,8 +314,8 @@ export function NewExameTipo() {
             <Grid item xs={3}>
               <InputLabel>Exige laudo</InputLabel>
               <InputSelectRadio
+                {...register("exigeLaudo")}
                 placeholder="Exige laudo"
-                name="exigeLaudo"
                 control={control}
                 options={[
                   { label: "Sim", value: true },
@@ -237,8 +326,8 @@ export function NewExameTipo() {
             <Grid item xs={3}>
               <InputLabel>Necessita preparo</InputLabel>
               <InputSelectRadio
+                {...register("necessitaPreparo")}
                 placeholder="Necessita preparo"
-                name="necessitaPreparo"
                 control={control}
                 options={[
                   { label: "Sim", value: true },
@@ -252,12 +341,29 @@ export function NewExameTipo() {
                   <InputLabel sx={{ marginBottom: 0 }}>Material</InputLabel>
                 </Grid>
                 <Grid item xs={4} display="flex" justifyContent="flex-end">
-                  <IconButton onClick={() => handleMaterialDialog(true)}>
-                    <AddCircleOutlineIcon fontSize="small" color="primary" />
-                  </IconButton>
+                  <Tooltip
+                    title="Adicionar material"
+                    placement="top-end"
+                    slotProps={{
+                      popper: {
+                        modifiers: [
+                          {
+                            name: "offset",
+                            options: {
+                              offset: [0, -10],
+                            },
+                          },
+                        ],
+                      },
+                    }}
+                  >
+                    <IconButton onClick={() => handleMaterialDialog(true)}>
+                      <AddCircleOutlineIcon fontSize="small" color="primary" />
+                    </IconButton>
+                  </Tooltip>
                 </Grid>
               </Grid>
-              <InputSelect name="codTipoMaterial" control={control}>
+              <InputSelect {...register("codTipoMaterial")} control={control}>
                 {materiaisData?.map((material: Material) => (
                   <MenuItem key={material.id} value={material.id}>
                     {material.nome}
@@ -271,12 +377,29 @@ export function NewExameTipo() {
                   <InputLabel sx={{ marginBottom: 0 }}>Método</InputLabel>
                 </Grid>
                 <Grid item xs={4} display="flex" justifyContent="flex-end">
-                  <IconButton onClick={() => handleMetodoDialog(true)}>
-                    <AddCircleOutlineIcon fontSize="small" color="primary" />
-                  </IconButton>
+                  <Tooltip
+                    title="Adicionar método"
+                    placement="top-end"
+                    slotProps={{
+                      popper: {
+                        modifiers: [
+                          {
+                            name: "offset",
+                            options: {
+                              offset: [0, -10],
+                            },
+                          },
+                        ],
+                      },
+                    }}
+                  >
+                    <IconButton onClick={() => handleMetodoDialog(true)}>
+                      <AddCircleOutlineIcon fontSize="small" color="primary" />
+                    </IconButton>
+                  </Tooltip>
                 </Grid>
               </Grid>
-              <InputSelect name="codTipoMetodo" control={control}>
+              <InputSelect {...register("codTipoMetodo")} control={control}>
                 {metodosData?.map((metodo: Metodo) => (
                   <MenuItem key={metodo.id} value={metodo.id}>
                     {metodo.nome}
@@ -298,23 +421,23 @@ export function NewExameTipo() {
         title="Novo Material"
         open={dialogMaterialOpen}
         onClose={() => handleMaterialDialog(false)}
-        onSubmit={() => console.log("submit")}
+        onSubmit={handleSubmitMaterial(onSubmitMaterial)}
       >
         <Grid container gap={2}>
           <Grid item flex={1}>
             <InputLabel>Nome</InputLabel>
             <InputText
               placeholder="Material"
-              name="material"
-              control={control}
+              name="nome"
+              control={materialFormControl}
             />
           </Grid>
           <Grid item xs={4}>
             <InputLabel>Quantidade</InputLabel>
             <InputText
               placeholder="Quantidade"
-              name="qtdMaterial"
-              control={control}
+              name="qtdMaxima"
+              control={materialFormControl}
             />
           </Grid>
         </Grid>
@@ -324,24 +447,48 @@ export function NewExameTipo() {
         title="Novo Método"
         open={dialogMetodoOpen}
         onClose={() => handleMetodoDialog(false)}
-        onSubmit={() => console.log("submit")}
+        onSubmit={handleSubmitMetodo(onSubmitMetodo)}
       >
         <InputLabel>Método</InputLabel>
-        <InputText placeholder="Metodo" name="metodo" control={control} />
+        <InputText
+          placeholder="Metodo"
+          name="nome"
+          control={metodoFormControl}
+        />
       </FormDialog>
 
       <Grid
         container
         justifyContent="space-between"
         alignItems="center"
-        mt={6}
+        mt={4}
         mb={4}
       >
         <Typography variant="h2">Itens do exame</Typography>
-        <Button variant="outlined" size="small">
-          Novo Grupo {/* = POST new sub exame tipo */}
-        </Button>
+        {exameTipoId && (
+          <Button
+            variant="outlined"
+            size="small"
+            onClick={() => setDialogSubExameOpen(true)}
+          >
+            Novo Grupo
+          </Button>
+        )}
       </Grid>
+
+      <FormDialog
+        title="Novo Método"
+        open={dialogSubExameOpen}
+        onClose={() => setDialogSubExameOpen(false)}
+        onSubmit={handleSubmitSubExame(onSubmitSubExame)}
+      >
+        <InputLabel>Nome</InputLabel>
+        <InputText
+          placeholder="Nome do grupo"
+          name="nome"
+          control={subExameFormControl}
+        />
+      </FormDialog>
 
       <NewSubExameTipoTable subExameData={searchedExame?.subExamesTipoList} />
     </>

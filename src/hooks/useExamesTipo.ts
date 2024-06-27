@@ -2,7 +2,7 @@
   import { useQuery } from "@tanstack/react-query";
 import { ExameTipo } from "../types/ExameTipo";
 
-export const useExamesTipo = (id?: number) => {
+export const useExamesTipo = () => {
   return useQuery<ExameTipo[]>({
     queryKey: ["exames"],
     queryFn: async () => {
