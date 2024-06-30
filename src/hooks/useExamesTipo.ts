@@ -1,5 +1,4 @@
-
-  import { useQuery } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { ExameTipo } from "../types/ExameTipo";
 
 export const useExamesTipo = () => {
@@ -17,5 +16,4 @@ export const useExamesTipo = () => {
       return response;
     },
   });
-
 };

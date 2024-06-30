@@ -11,9 +11,12 @@ export const EmptyState = (props: EmptyStateProps) => {
   const { title, description, children } = props;
 
   return (
-    <Grid container maxWidth="50%" alignSelf="center">
-      <Grid xs>{children}</Grid>
+    <Grid container maxWidth="60%" alignSelf="center" gap={1}>
+      <Grid xs item>
+        {children}
+      </Grid>
       <Grid
+        item
         xs
         display="flex"
         flexDirection="column"

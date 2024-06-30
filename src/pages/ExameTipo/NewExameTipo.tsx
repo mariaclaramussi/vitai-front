@@ -20,6 +20,7 @@ import { ExameTipo, Material, Metodo } from "../../types/ExameTipo";
 import { InputSelect } from "../../components/form/InputSelect";
 import { InputSelectRadio } from "../../components/form/InputSelectRadio";
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
+import ClearIcon from "@mui/icons-material/Clear";
 import { CategoriaExame } from "../../types/CategoriaExame";
 import { FormDialog } from "../../components/form/FormDialog";
 import { NewSubExameTipoTable } from "./components/SubExameTipoTable";
@@ -233,6 +234,20 @@ export function NewExameTipo() {
               options={examesData || []}
               getOptionLabel={(option) =>
                 typeof option === "string" ? option : option.nome
+              }
+              clearIcon={
+                <IconButton
+                  onClick={() => {
+                    setExameTipoId(undefined);
+                    reset(defaultValues);
+                  }}
+                  sx={{
+                    width: "1.5rem",
+                    height: "1.5rem",
+                  }}
+                >
+                  <ClearIcon />
+                </IconButton>
               }
               onChange={(_, value) => {
                 value &&
