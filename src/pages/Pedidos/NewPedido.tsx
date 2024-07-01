@@ -38,10 +38,13 @@ const defaultValues = {
   },
 };
 
-interface FormFieldsType extends Partial<Pedido> {
+type FormFieldsType = {
+  dataPedido: Date;
+  status: Pedido["status"];
+  tipoPedido: Pedido["tipoPedido"];
   medico: Medico;
   paciente: Paciente;
-}
+};
 
 const NewPedido = () => {
   const navigate = useNavigate();
@@ -58,13 +61,20 @@ const NewPedido = () => {
   const { data: allMedicos } = useAllMedicos();
 
   const onSubmit: SubmitHandler<FormFieldsType> = (data, event) => {
-    console.log(data);
+    const { paciente, medico, ...restData } = data;
+
+    const dataFormatted = {
+      ...restData,
+      codPaciente: paciente.id,
+      codMedico: medico.id,
+      dataPedido: dayjs(data.dataPedido),
+    };
 
     event?.preventDefault();
     fetch("/pedidos", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data),
+      body: JSON.stringify({ ...dataFormatted }),
     })
       .then((response) => response.json())
       .then(() => {
@@ -103,6 +113,7 @@ const NewPedido = () => {
                 }
                 onChange={(_, value) => {
                   value && setPaciente(value as Paciente);
+                  setValue("paciente", value as Paciente);
                 }}
                 clearIcon={
                   <IconButton

@@ -1,11 +1,12 @@
 export type Pedido = {
+  id: string;
   dataPedido: Date;
   dataPrevisto?: Date;
   dataCadastro?: Date;
   tipoPedido: "Exame laboratorial" | "Exame de imagem";
   status: "Pendente" | "Liberado" | "Realizado" | "Cancelado";
-  codPaciente: Medico["id"];
-  codMedico: Paciente["id"];
+  paciente: Medico;
+  medico: Paciente;
 };
 
 export type Medico = {
