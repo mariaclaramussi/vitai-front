@@ -1,3 +1,4 @@
+import React, { useEffect } from "react";
 import {
   Card,
   Typography,
@@ -8,7 +9,6 @@ import {
   Box,
 } from "@mui/material";
 import { useQuery } from "@tanstack/react-query";
-import React, { useEffect } from "react";
 import { CategoriaExame, Modalidade, Secao } from "../types/CategoriaExame";
 import { useForm } from "react-hook-form";
 import { InputText } from "../components/form/InputText";
@@ -44,8 +44,8 @@ export function NewCategoriaExame() {
 
       if (response.error) {
         throw new Error(response.error);
-      } 
-      
+      }
+
       return response;
     },
   });
@@ -59,8 +59,8 @@ export function NewCategoriaExame() {
 
       if (response.error) {
         throw new Error(response.error);
-      } 
-      
+      }
+
       return response;
     },
   });

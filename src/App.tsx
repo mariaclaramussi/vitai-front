@@ -37,7 +37,6 @@ function App() {
               <Routes>
                 <Route path="/pedidos" element={<Pedidos />} />
                 <Route path="/pedidos/novo" element={<NewPedido />} />
-                <Route path="/resultados" element={<Home />} />
                 <Route
                   path="/categoria-de-exame/cadastro"
                   element={<NewCategoriaExame />}

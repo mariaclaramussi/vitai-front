@@ -1,5 +1,5 @@
+import React, { useState } from "react";
 import { Box, Button, Collapse, List, ListItemIcon } from "@mui/material";
-import React, { FC, useState } from "react";
 import {
   ExpandLess,
   ExpandMore,
@@ -16,14 +16,8 @@ import {
 } from "./styles";
 import { useNavigate } from "react-router-dom";
 
-interface SidebarProps {
-  // adicione as propriedades necessárias aqui
-}
-
-const Sidebar: FC<SidebarProps> = () => {
+const Sidebar = () => {
   const [openExam, setOpenExam] = useState(true);
-  const [openLab, setOpenLab] = useState(false);
-
   const [showRegister, setToggleRegister] = useState(false);
 
   let navigate = useNavigate();
@@ -41,18 +35,18 @@ const Sidebar: FC<SidebarProps> = () => {
         },
       ],
     },
-    {
-      text: "Laboratório",
-      icon: <BiotechOutlined />,
-      boolean: openLab,
-      collapsedClick: () => setOpenLab(!openLab),
-      children: [
-        {
-          text: "Resultados",
-          onClick: () => navigate("/resultados"),
-        },
-      ],
-    },
+    // {
+    //   text: "Laboratório",
+    //   icon: <BiotechOutlined />,
+    //   boolean: openLab,
+    //   collapsedClick: () => setOpenLab(!openLab),
+    //   children: [
+    //     {
+    //       text: "Resultados",
+    //       onClick: () => navigate("/resultados"),
+    //     },
+    //   ],
+    // },
   ];
 
   const registerItemsList = [

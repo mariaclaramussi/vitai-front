@@ -12,7 +12,7 @@ export type Metodo = {
 };
 
 export type ExameTipo = {
-  id: number,
+  id: number;
   nome: string;
   descricao: string;
   prazoExecucao: number;

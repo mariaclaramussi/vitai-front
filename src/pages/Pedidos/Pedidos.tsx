@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Autocomplete,
   Box,
@@ -6,6 +6,7 @@ import {
   Card,
   Grid,
   IconButton,
+  InputLabel,
   Tab,
   Table,
   TableBody,
@@ -22,9 +23,11 @@ import ClearIcon from "@mui/icons-material/Clear";
 import { Link } from "react-router-dom";
 import { usePedidosBySearch } from "../../hooks/usePedidosBySearch";
 import dayjs from "dayjs";
-import { Paciente } from "../../types/Pedido";
+import { Medico, Paciente, Pedido } from "../../types/Pedido";
 import { useAllPacientes } from "../../hooks/usePaciente";
 import { useSinglePedido } from "../../hooks/useSinglePedido";
+import { useForm } from "react-hook-form";
+import { useExamesTipo } from "../../hooks/useExamesTipo";
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -44,7 +47,7 @@ function CustomTabPanel(props: TabPanelProps) {
 
   return (
     <div
-      style={{ display: "flex", flexDirection: "column", gap: "24px" }}
+      style={{ display: "flex", flexDirection: "column" }}
       role="tabpanel"
       hidden={value !== index}
       id={`simple-tabpanel-${index}`}
@@ -56,6 +59,15 @@ function CustomTabPanel(props: TabPanelProps) {
   );
 }
 
+type FormFieldsType = {
+  numeroPedido: string;
+  dataPedido: string;
+  status: Pedido["status"];
+  tipoPedido: Pedido["tipoPedido"];
+  nomeMedico: Medico["nome"];
+  crmMedico: Medico["crm"];
+};
+
 const Pedidos = () => {
   const [autocompleteOpen, setAutocompleteOpen] = React.useState(false);
   const [pedidoId, setPedidoId] = useState<string | null>(null);
@@ -63,11 +75,23 @@ const Pedidos = () => {
   const [paciente, setPaciente] = useState<Paciente | null>(null);
   const [tabValue, setTabValue] = useState(0);
 
-  const { data: allPacientes } = useAllPacientes();
-  const { data: allPedidos, isFetched } = usePedidosBySearch(paciente?.id);
+  const [exameTipoId, setExameTipoId] = useState<number | undefined>(undefined);
 
-  const { data: singlePedido } = useSinglePedido(String(pedidoId));
-  console.log(singlePedido);
+  const { register, setValue } = useForm<FormFieldsType>();
+
+  const { data: examesData } = useExamesTipo();
+
+  const { data: allPacientes } = useAllPacientes();
+
+  const {
+    data: allPedidos,
+    isFetched,
+    refetch: refetchPedidos,
+  } = usePedidosBySearch(paciente?.id);
+
+  const { data: singlePedido, refetch: refetchSinglePedido } = useSinglePedido(
+    String(pedidoId)
+  );
 
   const handleChange = (event: React.SyntheticEvent, newValue: number) => {
     setTabValue(newValue);
@@ -81,6 +105,36 @@ const Pedidos = () => {
     setTabValue(1);
     setPedidoId(id);
   };
+
+  const addItemToPedido = async () => {
+    fetch("/pedidos-items", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        codExameTipo: exameTipoId,
+        codPedido: pedidoId,
+        status: "Pendente",
+      }),
+    })
+      .then((response) => response.json())
+      .then(() => {
+        refetchSinglePedido();
+      });
+  };
+
+  useEffect(() => {
+    if (singlePedido) {
+      setValue("numeroPedido", singlePedido.id);
+      setValue(
+        "dataPedido",
+        dayjs(singlePedido.dataPedido).format("DD/MM/YYYY")
+      );
+      setValue("status", singlePedido.status);
+      setValue("tipoPedido", singlePedido.tipoPedido);
+      setValue("nomeMedico", singlePedido.medico.nome);
+      setValue("crmMedico", singlePedido.medico.crm);
+    }
+  }, [singlePedido]);
 
   return (
     <>
@@ -127,6 +181,7 @@ const Pedidos = () => {
                   <IconButton
                     onClick={() => {
                       setPaciente(null);
+                      refetchPedidos();
                     }}
                     sx={{
                       width: "1.5rem",
@@ -152,11 +207,12 @@ const Pedidos = () => {
         sx={{
           display: "flex",
           flexDirection: "column",
-          gap: 4,
           paddingTop: "16px",
         }}
       >
-        <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
+        <Box
+          sx={{ borderBottom: 1, borderColor: "divider", marginBottom: "24px" }}
+        >
           <Tabs value={tabValue} onChange={handleChange}>
             <Tab label="Pedidos registrados" {...a11yProps(0)} />
             <Tab label="Exames do pedido" {...a11yProps(1)} />
@@ -204,7 +260,135 @@ const Pedidos = () => {
           )}
         </CustomTabPanel>
         <CustomTabPanel value={tabValue} index={1}>
-          Exames do pedido
+          <Grid
+            container
+            xs={12}
+            gap={2}
+            display="flex"
+            justifyContent="flex-end"
+            alignItems="center"
+            mb={2}
+          >
+            <Autocomplete
+              size="small"
+              style={{ width: "300px" }}
+              freeSolo
+              options={examesData || []}
+              getOptionLabel={(option) =>
+                typeof option === "string" ? option : option.nome
+              }
+              clearIcon={
+                <IconButton
+                  onClick={() => {
+                    setExameTipoId(undefined);
+                  }}
+                  sx={{
+                    width: "1.5rem",
+                    height: "1.5rem",
+                  }}
+                >
+                  <ClearIcon />
+                </IconButton>
+              }
+              onChange={(_, value) => {
+                value &&
+                  setExameTipoId((value as { id: number; nome: string }).id);
+              }}
+              renderInput={(params) => {
+                return <TextField {...params} placeholder="Pesquisar" />;
+              }}
+            />
+            <Button size="small" variant="contained" onClick={addItemToPedido}>
+              Adicionar exame
+            </Button>
+          </Grid>
+          <Grid container spacing={4}>
+            <Grid container item xs={6} gap={2}>
+              <Grid item xs={5}>
+                <InputLabel>Número do pedido</InputLabel>
+                <TextField
+                  {...register("numeroPedido")}
+                  InputProps={{
+                    readOnly: true,
+                    disabled: true,
+                  }}
+                />
+              </Grid>
+              <Grid item xs={5}>
+                <InputLabel>Status</InputLabel>
+                <TextField
+                  {...register("status")}
+                  InputProps={{
+                    readOnly: true,
+                    disabled: true,
+                  }}
+                />
+              </Grid>
+              <Grid item xs={5}>
+                <InputLabel>Data do pedido</InputLabel>
+                <TextField
+                  {...register("dataPedido")}
+                  InputProps={{
+                    readOnly: true,
+                    disabled: true,
+                  }}
+                />
+              </Grid>
+              <Grid item xs={5}>
+                <InputLabel>Tipo de exame</InputLabel>
+                <TextField
+                  {...register("tipoPedido")}
+                  placeholder="Tipo de exame"
+                  InputProps={{
+                    readOnly: true,
+                    disabled: true,
+                  }}
+                />
+              </Grid>
+              <Grid item xs={5}>
+                <InputLabel>Médico</InputLabel>
+                <TextField
+                  {...register("nomeMedico")}
+                  placeholder="Nome do médico"
+                  InputProps={{
+                    readOnly: true,
+                    disabled: true,
+                  }}
+                />
+              </Grid>
+              <Grid item xs={5}>
+                <InputLabel>CRM</InputLabel>
+                <TextField
+                  {...register("crmMedico")}
+                  placeholder="CRM"
+                  InputProps={{
+                    readOnly: true,
+                    disabled: true,
+                  }}
+                />
+              </Grid>
+            </Grid>
+            <Grid item xs={6}>
+              <Table>
+                <TableHead>
+                  <TableRow>
+                    <TableCell>Número do exame</TableCell>
+                    <TableCell>Nome</TableCell>
+                    <TableCell>Status</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {singlePedido?.pedidosItensList?.map((item, index) => (
+                    <TableRow key={index}>
+                      <TableCell>{item.id}</TableCell>
+                      <TableCell>{item.codExameTipo.nome}</TableCell>
+                      <TableCell>{item.status}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </Grid>
+          </Grid>
         </CustomTabPanel>
       </Card>
     </>

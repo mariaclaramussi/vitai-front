@@ -1,3 +1,12 @@
+import { ExameTipo } from "./ExameTipo";
+
+export type ItemPedido = {
+  codExameTipo: ExameTipo;
+  dataRealizacao: Date;
+  id: string;
+  status: "Pendente" | "Liberado" | "Realizado" | "Cancelado";
+};
+
 export type Pedido = {
   id: string;
   dataPedido: Date;
@@ -5,8 +14,9 @@ export type Pedido = {
   dataCadastro?: Date;
   tipoPedido: "Exame laboratorial" | "Exame de imagem";
   status: "Pendente" | "Liberado" | "Realizado" | "Cancelado";
-  paciente: Medico;
-  medico: Paciente;
+  paciente: Paciente;
+  medico: Medico;
+  pedidosItensList?: ItemPedido[];
 };
 
 export type Medico = {
