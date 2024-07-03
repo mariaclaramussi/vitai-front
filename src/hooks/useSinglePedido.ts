@@ -14,6 +14,6 @@ export const useSinglePedido = (id: string) => {
   return useQuery<Pedido>({
     queryKey: ["pedido", id],
     queryFn: () => fetchSinglePedido(id),
-    enabled: !!id,
+    enabled: Boolean(id),
   });
 };

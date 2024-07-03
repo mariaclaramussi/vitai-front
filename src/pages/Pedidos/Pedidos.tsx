@@ -4,6 +4,8 @@ import {
   Box,
   Button,
   Card,
+  Chip,
+  ChipProps,
   Grid,
   IconButton,
   InputLabel,
@@ -23,7 +25,7 @@ import ClearIcon from "@mui/icons-material/Clear";
 import { Link } from "react-router-dom";
 import { usePedidosBySearch } from "../../hooks/usePedidosBySearch";
 import dayjs from "dayjs";
-import { Medico, Paciente, Pedido } from "../../types/Pedido";
+import { Medico, Paciente, Pedido, StatusPedido } from "../../types/Pedido";
 import { useAllPacientes } from "../../hooks/usePaciente";
 import { useSinglePedido } from "../../hooks/useSinglePedido";
 import { useForm } from "react-hook-form";
@@ -58,6 +60,15 @@ function CustomTabPanel(props: TabPanelProps) {
     </div>
   );
 }
+
+const mapChipColorStatus: {
+  [key in StatusPedido]: ChipProps["color"];
+} = {
+  pendente: "warning",
+  realizado: "success",
+  liberado: "success",
+  cancelado: "error",
+};
 
 type FormFieldsType = {
   numeroPedido: string;
@@ -244,7 +255,14 @@ const Pedidos = () => {
                     </TableCell>
                     <TableCell>{pedido.tipoPedido}</TableCell>
                     <TableCell>{pedido.medico.nome}</TableCell>
-                    <TableCell>{pedido.status}</TableCell>
+                    <TableCell>
+                      <Chip
+                        label={pedido.status}
+                        size="small"
+                        color={mapChipColorStatus[pedido.status]}
+                        style={{ textTransform: "capitalize" }}
+                      />
+                    </TableCell>
                     <TableCell>
                       <Button
                         size="small"
@@ -382,7 +400,14 @@ const Pedidos = () => {
                     <TableRow key={index}>
                       <TableCell>{item.id}</TableCell>
                       <TableCell>{item.codExameTipo.nome}</TableCell>
-                      <TableCell>{item.status}</TableCell>
+                      <TableCell>
+                        <Chip
+                          label={item.status}
+                          size="small"
+                          color={mapChipColorStatus[item.status]}
+                          style={{ textTransform: "capitalize" }}
+                        />
+                      </TableCell>
                     </TableRow>
                   ))}
                 </TableBody>

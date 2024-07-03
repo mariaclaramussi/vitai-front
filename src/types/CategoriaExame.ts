@@ -16,6 +16,6 @@ export type CategoriaExame = {
     | "Patologia clínica"
     | "Anatomia patológica"
     | "Exame de imagem";
-  modalidade: Modalidade;
-  secao: Secao;
+  codModalidade: Modalidade["id"];
+  codSecao: Secao["id"];
 };

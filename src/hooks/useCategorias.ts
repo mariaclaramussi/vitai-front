@@ -1,19 +1,14 @@
 import { useQuery } from "@tanstack/react-query";
 import { CategoriaExame } from "../types/CategoriaExame";
+import axios from "axios";
 
-export const useCategorias = (id?: number) => {
+const fetchAllCategorias = async (): Promise<CategoriaExame[]> => {
+  return axios.get(`/categorias-de-exame`).then((response) => response.data);
+};
+
+export const useCategorias = () => {
   return useQuery<CategoriaExame[]>({
     queryKey: ["categorias"],
-    queryFn: async () => {
-      const response = await fetch("/categorias-de-exame").then((response) =>
-        response.json()
-      );
-
-      if (response.error) {
-        throw new Error(response.error);
-      }
-
-      return response;
-    },
+    queryFn: () => fetchAllCategorias(),
   });
 };

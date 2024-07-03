@@ -1,6 +1,6 @@
 import { createTheme } from "@mui/material";
 
-const darkText = "#3D3D3D"
+const darkText = "#3D3D3D";
 
 export const theme = createTheme({
   typography: {
@@ -10,7 +10,7 @@ export const theme = createTheme({
       fontWeight: 700,
       lineHeight: 1,
     },
-    h2: { 
+    h2: {
       fontSize: "24px",
       fontWeight: 700,
       lineHeight: 1,
@@ -21,23 +21,23 @@ export const theme = createTheme({
     },
     subtitle1: {
       fontSize: "16px",
-      fontWeight: '600',
+      fontWeight: "600",
     },
     subtitle2: {
       fontSize: "14px",
-      fontWeight: '600',
+      fontWeight: "600",
     },
     allVariants: {
       color: darkText,
       fontFamily: ["Poppins", "sans-serif"].join(","),
-    }
+    },
   },
   palette: {
     primary: { main: "#3AAA99" },
     secondary: { main: "#EFEEEE" },
-    error: { main: "rgb(191, 35, 35, 1)" },
-    warning: { main: "rgb(223, 216, 65, 1)" },
-    success: { main: "rgb(158, 213, 216, 1)" },
+    error: { main: "rgb(191, 35, 35, 0.8)" },
+    warning: { main: "rgb(223, 216, 65, 0.8)" },
+    success: { main: "rgb(158, 213, 216, 0.8)" },
     background: { default: "#F5F5F5", paper: "#fff" },
     text: { primary: darkText },
   },
@@ -46,7 +46,7 @@ export const theme = createTheme({
       styleOverrides: {
         root: {
           borderRadius: "16px",
-          padding: "32px 24px"
+          padding: "32px 24px",
         },
       },
     },
@@ -55,18 +55,18 @@ export const theme = createTheme({
         root: {
           borderRadius: "8px",
           fontSize: "16px",
-          lineHeight: '24px',
-          fontWeight: '700',
-          textTransform: 'inherit',
-          padding: '8px 28px',
+          lineHeight: "24px",
+          fontWeight: "700",
+          textTransform: "inherit",
+          padding: "8px 28px",
         },
         sizeSmall: {
           fontSize: "14px",
-          padding: "6px 16px"
+          padding: "6px 16px",
         },
         contained: {
           color: "#efeeee",
-        }
+        },
       },
     },
     MuiFormControl: {
@@ -87,20 +87,23 @@ export const theme = createTheme({
       styleOverrides: {
         root: {
           width: "100%",
-          padding: '12px 0',
-          maxHeight: '48px',
+          padding: "12px 0",
+          maxHeight: "48px",
           borderRadius: "8px",
+          "&.Mui-disabled": {
+            backgroundColor: "#F5F5F5",
+          },
         },
       },
     },
     MuiSelect: {
       styleOverrides: {
         root: {
-          padding: 0
+          padding: 0,
         },
       },
     },
-    MuiInputLabel: { 
+    MuiInputLabel: {
       styleOverrides: {
         root: {
           marginBottom: "8px",
@@ -110,16 +113,16 @@ export const theme = createTheme({
     MuiTable: {
       styleOverrides: {
         root: {
-          borderCollapse: 'inherit'
+          borderCollapse: "inherit",
         },
       },
     },
     MuiTableCell: {
       styleOverrides: {
         root: {
-          padding: "12px 16px"
+          padding: "12px 16px",
         },
       },
     },
-  }
+  },
 });

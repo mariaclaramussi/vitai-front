@@ -220,6 +220,7 @@ export const NewSubExameTipoTable = (props: NewSubExameTipoProps) => {
                               onClick={(e) => {
                                 e.preventDefault();
                                 setExameItemTipoId(item.id);
+                                setSubExameGroupSelected(subExame.id);
                                 setDialogSubExameItemOpen(true);
                               }}
                             >

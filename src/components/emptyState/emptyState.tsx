@@ -4,7 +4,7 @@ import React, { ReactNode } from "react";
 type EmptyStateProps = {
   title: string;
   description?: string;
-  children: ReactNode;
+  children?: ReactNode;
 };
 
 export const EmptyState = (props: EmptyStateProps) => {

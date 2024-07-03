@@ -72,10 +72,13 @@ export function NewExameTipo() {
       defaultValues: { nome: "" },
     });
 
-  const { control: subExameFormControl, handleSubmit: handleSubmitSubExame } =
-    useForm<SubExameTipo>({
-      defaultValues: { nome: "", exameTipoItemsList: [] },
-    });
+  const {
+    control: subExameFormControl,
+    handleSubmit: handleSubmitSubExame,
+    reset: resetSubExame,
+  } = useForm<SubExameTipo>({
+    defaultValues: { nome: "", exameTipoItemsList: [] },
+  });
 
   const { data: materiaisData, refetch: refetchMaterial } = useMateriais();
 
@@ -175,6 +178,8 @@ export function NewExameTipo() {
       })
       .then(() => {
         setDialogSubExameOpen(false);
+        refetchSingleExameTipo();
+        resetSubExame();
       });
   };
 
@@ -260,6 +265,7 @@ export function NewExameTipo() {
           </Grid>
         </Grid>
       </Box>
+
       <Card>
         <form onSubmit={handleSubmit(onSubmit)}>
           <Grid container spacing={2}>

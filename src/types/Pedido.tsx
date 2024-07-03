@@ -1,10 +1,11 @@
 import { ExameTipo } from "./ExameTipo";
 
+export type StatusPedido = "pendente" | "liberado" | "realizado" | "cancelado";
 export type ItemPedido = {
   codExameTipo: ExameTipo;
   dataRealizacao: Date;
   id: string;
-  status: "Pendente" | "Liberado" | "Realizado" | "Cancelado";
+  status: StatusPedido;
 };
 
 export type Pedido = {
@@ -13,7 +14,7 @@ export type Pedido = {
   dataPrevisto?: Date;
   dataCadastro?: Date;
   tipoPedido: "Exame laboratorial" | "Exame de imagem";
-  status: "Pendente" | "Liberado" | "Realizado" | "Cancelado";
+  status: StatusPedido;
   paciente: Paciente;
   medico: Medico;
   pedidosItensList?: ItemPedido[];

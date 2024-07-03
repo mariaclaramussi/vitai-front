@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Card,
   Typography,
@@ -7,33 +7,40 @@ import {
   Grid,
   Button,
   Box,
+  Autocomplete,
+  IconButton,
+  TextField,
+  Alert,
+  Snackbar,
 } from "@mui/material";
 import { useQuery } from "@tanstack/react-query";
 import { CategoriaExame, Modalidade, Secao } from "../types/CategoriaExame";
 import { useForm } from "react-hook-form";
+import ClearIcon from "@mui/icons-material/Clear";
 import { InputText } from "../components/form/InputText";
 import { InputSelect } from "../components/form/InputSelect";
-
-type FormInputProps = {
-  nome: string;
-  descricao: string;
-  tipoCategoria: CategoriaExame["tipoCategoria"];
-  secao: string;
-  modalidade: string;
-};
+import { useCategorias } from "../hooks/useCategorias";
+import { useSingleCategoria } from "../hooks/useSingleCategoria";
 
 const defaultValues = {
   nome: "",
   descricao: "",
   tipoCategoria: "Patologia clínica" as CategoriaExame["tipoCategoria"],
-  secao: "",
-  modalidade: "",
-};
+  codSecao: 1,
+  codModalidade: 1,
+} as CategoriaExame;
 
 export function NewCategoriaExame() {
-  const { control, handleSubmit, setValue } = useForm<FormInputProps>({
-    defaultValues: defaultValues,
-  });
+  const [categoriaId, setCategoriaId] = useState<number | undefined>(undefined);
+  const [alertMessage, setAlertMessage] = useState<{
+    show: boolean;
+    message: string;
+  }>({ show: false, message: "" });
+
+  const { control, handleSubmit, setValue, reset, register } =
+    useForm<CategoriaExame>({
+      defaultValues: defaultValues,
+    });
 
   const { data: secoesData } = useQuery<Secao[]>({
     queryKey: ["secoes"],
@@ -65,41 +72,117 @@ export function NewCategoriaExame() {
     },
   });
 
-  const onSubmit = (data: FormInputProps) => {
+  const { data: categoriasData, refetch } = useCategorias();
+
+  const { data: singleCategoria } = useSingleCategoria(categoriaId);
+
+  const onSubmit = (data: CategoriaExame) => {
     fetch("/categorias-de-exame", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(data),
-    });
+    })
+      .then((response) => response.json())
+      .then(() => {
+        setAlertMessage({
+          show: true,
+          message: "Novo grupo criado!",
+        });
+      })
+      .then(() => {
+        reset(defaultValues);
+        refetch();
+      });
   };
 
   useEffect(() => {
     if (secoesData) {
-      setValue("secao", secoesData[0].nome);
+      setValue("codSecao", secoesData[0].id);
     }
     if (modalidadesData) {
-      setValue("modalidade", modalidadesData[0].nome);
+      setValue("codModalidade", modalidadesData[0].id);
     }
   });
 
+  useEffect(() => {
+    if (categoriaId) {
+      reset(singleCategoria);
+    }
+  }, [singleCategoria]);
+
   return (
     <>
-      <Box mt={12} mb={4}>
-        <Typography variant="h1">Cadastro de categoria de exame</Typography>
+      {alertMessage ? (
+        <Snackbar
+          open={alertMessage.show}
+          autoHideDuration={6000}
+          onClose={() => setAlertMessage({ show: false, message: "" })}
+        >
+          <Alert
+            onClose={() => setAlertMessage({ show: false, message: "" })}
+            severity="success"
+            variant="filled"
+          >
+            {alertMessage.message}
+          </Alert>
+        </Snackbar>
+      ) : null}
+
+      <Box mt={12} mb={3}>
+        <Grid container alignItems="center">
+          <Grid flex={1}>
+            <Typography variant="h1">Cadastro de categoria de exame</Typography>
+          </Grid>
+          <Grid sx={{ width: 300 }}>
+            <Autocomplete
+              freeSolo
+              options={categoriasData || []}
+              getOptionLabel={(option) =>
+                typeof option === "string" ? option : option.nome
+              }
+              clearIcon={
+                <IconButton
+                  onClick={() => {
+                    setCategoriaId(undefined);
+                    reset(defaultValues);
+                  }}
+                  sx={{
+                    width: "1.5rem",
+                    height: "1.5rem",
+                  }}
+                >
+                  <ClearIcon />
+                </IconButton>
+              }
+              onChange={(_, value) => {
+                if (typeof value === "object" && value !== null) {
+                  setCategoriaId(value.id);
+                }
+              }}
+              renderInput={(params) => {
+                return <TextField {...params} placeholder="Pesquisar" />;
+              }}
+            />
+          </Grid>
+        </Grid>
       </Box>
       <Card>
         <form onSubmit={handleSubmit(onSubmit)}>
           <Grid container spacing={2}>
             <Grid item xs={12}>
               <InputLabel>Nome</InputLabel>
-              <InputText name="nome" placeholder="Nome" control={control} />
+              <InputText
+                {...register("nome")}
+                placeholder="Nome"
+                control={control}
+              />
             </Grid>
 
             <Grid item xs={12}>
               <InputLabel>Descrição</InputLabel>
               <InputText
                 placeholder="Descrição"
-                name="descricao"
+                {...register("descricao")}
                 control={control}
               />
             </Grid>
@@ -107,7 +190,7 @@ export function NewCategoriaExame() {
             <Grid item xs={6}>
               <InputLabel>Tipo de exame</InputLabel>
               <InputSelect
-                name="tipoCategoria"
+                {...register("tipoCategoria")}
                 control={control}
                 defaultValue={defaultValues.tipoCategoria}
               >
@@ -121,13 +204,9 @@ export function NewCategoriaExame() {
 
             <Grid item xs={6}>
               <InputLabel>Seção</InputLabel>
-              <InputSelect
-                name="secao"
-                control={control}
-                defaultValue={defaultValues.secao}
-              >
+              <InputSelect {...register("codSecao")} control={control}>
                 {secoesData?.map((secao: Secao) => (
-                  <MenuItem key={secao.id} value={secao.nome}>
+                  <MenuItem key={secao.id} value={secao.id}>
                     {secao.nome}
                   </MenuItem>
                 ))}
@@ -136,13 +215,9 @@ export function NewCategoriaExame() {
 
             <Grid item xs={12}>
               <InputLabel>Modalidade</InputLabel>
-              <InputSelect
-                name="modalidade"
-                control={control}
-                defaultValue={defaultValues.modalidade}
-              >
+              <InputSelect {...register("codModalidade")} control={control}>
                 {modalidadesData?.map((modalidade: Modalidade) => (
-                  <MenuItem key={modalidade.id} value={modalidade.nome}>
+                  <MenuItem key={modalidade.id} value={modalidade.id}>
                     {modalidade.nome}
                   </MenuItem>
                 ))}
