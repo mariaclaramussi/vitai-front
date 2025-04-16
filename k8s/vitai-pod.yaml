@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: vitai-front-pod
+  namespace: vitai
+  labels:
+    app: vitai-front
+spec:
+  containers:
+    - name: vitai-front
+      image: mariamussi/vitai-front:latest
+      ports:
+        - containerPort: 3000
+      volumeMounts:
+        - mountPath: /data
+          name: vitai-volume
+  volumes:
+    - name: vitai-volume
+      persistentVolumeClaim:
+        claimName: vitai-pvc

@@ -1,0 +1,20 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vitai-front
+  namespace: vitai
+spec:
+  replicas: 4
+  selector:
+    matchLabels:
+      app: vitai-front
+  template:
+    metadata:
+      labels:
+        app: vitai-front
+    spec:
+      containers:
+        - name: vitai-front
+          image: mariamussi/vitai-front:latest
+          ports:
+            - containerPort: 3000
