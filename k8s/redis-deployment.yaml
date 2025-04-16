@@ -1,0 +1,20 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: redis
+  namespace: vitai
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: vitai-front
+  template:
+    metadata:
+      labels:
+        app: vitai-front
+    spec:
+      containers:
+        - name: redis
+          image: redis:7.2
+          ports:
+            - containerPort: 6379
